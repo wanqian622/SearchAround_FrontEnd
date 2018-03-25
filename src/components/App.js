@@ -6,7 +6,7 @@ import {TOKEN_KEY} from "../constant"
 
 class App extends React.Component {
     state = {
-        isLoggedIn:false
+        isLoggedIn:Boolean(localStorage.getItem(TOKEN_KEY))
     }
 
     handleLogin = (token)=>{
