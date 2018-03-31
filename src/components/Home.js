@@ -15,9 +15,18 @@ export class Home extends React.Component{
         posts:[]
     }
     // get geolocation
+
+    componentDidMount() {
+        this.setState({ loadingGeoLocation: true, error: '' });
+        this.getGeoLocation();
+    }
     getGeoLocation = ()=>{
         if("geolocation" in navigator){
-            navigator.geolocation.getCurrentPosition(this.onSuccessLoadGeoLocation, this.onFailedLoadGeolocation,GEO_OPTIONS);
+            navigator.geolocation.getCurrentPosition(
+                this.onSuccessLoadGeoLocation,
+                this.onFailedLoadGeolocation,
+                GEO_OPTIONS,
+            );
         } else{
             this.setState({ error: 'Your browser does not support geolocation!' });
         }
@@ -25,58 +34,48 @@ export class Home extends React.Component{
 
     onSuccessLoadGeoLocation = (position) =>{
         console.log(position);
-        const {latitude, longitude} = position.coords;
-        localStorage.setItem('POS_KEY',JSON.stringify({latitude, longitude}));
         this.setState({
             loadingGeoLocation:false,
             loadingPosts:false,
             error:''
         });
+        const {latitude, longitude} = position.coords;
+        localStorage.setItem(POS_KEY, JSON.stringify({lat: latitude, lon: longitude}));
         this.loadNearbyPosts();
     }
 
     onFailedLoadGeolocation = () =>{
         this.setState({
             loadingGeoLocation:false,
-            loadingPosts:false,
             error:'Failed to load geo location!'
         });
     }
 
-    getGalleryPanelContent = () =>{
-        if(this.state.error){
-            <div>
-                <Spin tip = {this.state.error}/>
-            </div>
-        } else if(this.state.loadingGeoLocation){
-            return(
-                <div>
-                    <Spin tip = "Loading geo location....."/>
-                </div>
-            );
-        } else if(this.state.loadingPosts){
-            return(
-                <div>
-                    <Spin tip = "Loading posts....."/>
-                </div>
-            );
-        }else if(this.state.posts && this.state.posts.length > 0){
-                const images = this.state.posts.map((post)=>{
-                    return {
-                        user: post.user,
-                        src: post.url,
-                        thumbnail: post.url,
-                        thumbnailWidth: 400,
-                        thumbnailHeight: 300,
-                        caption: post.message,
-                    }
+    getGalleryPanelContent = () => {
+        if (this.state.error) {
+            return <div>{this.state.error}</div>;
+        } else if (this.state.loadingGeoLocation) {
+            return <Spin tip="Loading geo location..."/>;
+        } else if (this.state.loadingPosts) {
+            return <Spin tip="Loading posts..."/>;
+        } else if (this.state.posts && this.state.posts.length > 0) {
+            const images = this.state.posts.map((post) => {
+                return {
+                    user: post.user,
+                    src: post.url,
+                    thumbnail: post.url,
+                    thumbnailWidth: 400,
+                    thumbnailHeight: 300,
+                    caption: post.message,
+                }
             });
             return <Gallery images={images}/>;
-
-        }else{
+        }
+        else {
             return null;
         }
     }
+
 
     // get date from server
     loadNearbyPosts = () =>{
@@ -85,33 +84,25 @@ export class Home extends React.Component{
         this.setState({
             loadingPosts:true,
             error:''
-        })
+        });
         $.ajax({
-            url:`${API_ROOT}/search?lat=${lat}&lon=${lon}`,
-            method:'GET',
-            headers:`${AUTH_PREFIX} ${localStorage.getItem(TOKEN_KEY)}`
-    }).then((response)=>{
-                this.setState({
-                    loadingPosts:false,
-                    error:'',
-                    posts:response
-                })
-                console.log(response);
-            }
-        , (error)=>{
-                this.setState({ loadingPosts: false, error: error.responseText });
-                console.log(error);
-            }).catch((error)=>{
+            url: `${API_ROOT}/search?lat=${lat}&lon=${lon}&range=20`,
+            method: 'GET',
+            headers: {
+                Authorization: `${AUTH_PREFIX} ${localStorage.getItem(TOKEN_KEY)}`
+            },
+        }).then((response) => {
+            this.setState({ posts: response, loadingPosts: false, error: '' });
+            console.log(response);
+        }, (error) => {
+            this.setState({ loadingPosts: false, error: error.responseText });
             console.log(error);
-        })
+        }).catch((error) => {
+            console.log(error);
+        });
 
     }
 
-
-    // when we load whole page then we call getGeoLocation
-    componentDidMount(){
-        this.getGeoLocation();
-    }
 
     render(){
         const operations = <Button type = "primary">Create New Post</Button>;
