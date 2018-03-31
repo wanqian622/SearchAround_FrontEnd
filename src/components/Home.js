@@ -1,7 +1,8 @@
 import React from 'react';
 import {Button, Tabs, Spin} from 'antd';
-import {GEO_OPTIONS} from "../constant";
+import {API_ROOT, GEO_OPTIONS, TOKEN_KEY, AUTH_PREFIX} from "../constant";
 import {POS_KEY} from "../constant";
+import $ from 'jquery';
 
 
 const TabPane = Tabs.TabPane;
@@ -24,14 +25,15 @@ export class Home extends React.Component{
         const {latitude, longitude} = position.coords;
         localStorage.setItem('POS_KEY',JSON.stringify({latitude, longitude}));
         this.setState({
-            loadingGeoLocation:true,
+            loadingGeoLocation:false,
+            loadingPosts:false,
             error:''
         });
     }
 
     onFailedLoadGeolocation = () =>{
         this.setState({
-            loadingGeoLocation:true,
+            loadingGeoLocation:false,
             error:'Failed to load geo location!'
         });
     }
@@ -47,12 +49,47 @@ export class Home extends React.Component{
                     <Spin tip = "Loading geo location....."/>
                 </div>
             );
-        } else{
+        } else if(this.state.loadingPosts){
+            return(
+                <div>
+                    <Spin tip = "Loading posts....."/>
+                </div>
+            );
+        }else{
             <div>
                 content
             </div>
         }
     }
+
+    // get date from server
+    loadNearbyPosts = () =>{
+        const lat = 37.7915953;
+        const lon = -122.3937977;
+        this.setState({
+            loadingPosts:true,
+            error:''
+        })
+        $.ajax({
+            url:`${API_ROOT}/search?lat=${lat}&lon=${lon}`,
+            method:'GET',
+            headers:`${AUTH_PREFIX} ${localStorage.getItem(TOKEN_KEY)}`
+    }).then((response)=>{
+                this.setState({
+                    loadingPosts:false,
+                    error:''
+                })
+                console.log(response);
+            }
+        , (error)=>{
+                this.setState({ loadingPosts: false, error: error.responseText });
+                console.log(error);
+            }).catch((error)=>{
+            console.log(error);
+        })
+
+    }
+
 
     // when we load whole page then we call getGeoLocation
     componentDidMount(){
