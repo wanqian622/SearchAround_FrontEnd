@@ -3,13 +3,16 @@ import {Button, Tabs, Spin} from 'antd';
 import {API_ROOT, GEO_OPTIONS, TOKEN_KEY, AUTH_PREFIX} from "../constant";
 import {POS_KEY} from "../constant";
 import $ from 'jquery';
+import {Gallery} from "./Gallery";
 
 
 const TabPane = Tabs.TabPane;
 export class Home extends React.Component{
     state = {
         loadingGeoLocation: false,
-        error:''
+        error:'',
+        loadingPosts:false,
+        posts:[]
     }
     // get geolocation
     getGeoLocation = ()=>{
@@ -29,11 +32,13 @@ export class Home extends React.Component{
             loadingPosts:false,
             error:''
         });
+        this.loadNearbyPosts();
     }
 
     onFailedLoadGeolocation = () =>{
         this.setState({
             loadingGeoLocation:false,
+            loadingPosts:false,
             error:'Failed to load geo location!'
         });
     }
@@ -55,10 +60,21 @@ export class Home extends React.Component{
                     <Spin tip = "Loading posts....."/>
                 </div>
             );
+        }else if(this.state.posts && this.state.posts.length > 0){
+                const images = this.state.posts.map((post)=>{
+                    return {
+                        user: post.user,
+                        src: post.url,
+                        thumbnail: post.url,
+                        thumbnailWidth: 400,
+                        thumbnailHeight: 300,
+                        caption: post.message,
+                    }
+            });
+            return <Gallery images={images}/>;
+
         }else{
-            <div>
-                content
-            </div>
+            return null;
         }
     }
 
@@ -77,7 +93,8 @@ export class Home extends React.Component{
     }).then((response)=>{
                 this.setState({
                     loadingPosts:false,
-                    error:''
+                    error:'',
+                    posts:response
                 })
                 console.log(response);
             }
