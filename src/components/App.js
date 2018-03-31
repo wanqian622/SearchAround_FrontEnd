@@ -2,7 +2,8 @@ import React from 'react';
 import '../styles/App.css';
 import {Header} from "./Header";
 import {Main} from "./Main";
-import {TOKEN_KEY} from "../constant"
+import {TOKEN_KEY} from "../constant";
+
 
 class App extends React.Component {
     state = {
