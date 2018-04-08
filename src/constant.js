@@ -7,3 +7,4 @@ export const GEO_OPTIONS = {
     timeout           : 30000
 };
 export const POS_KEY = 'POS';
+export const LOC_SHAKE='0.02';

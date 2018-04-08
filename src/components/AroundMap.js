@@ -1,23 +1,21 @@
 import React from 'react';
 import {withScriptjs,withGoogleMap,GoogleMap,Marker, InfoWindow} from 'react-google-maps';
 import {AroundMarker} from "./AroundMarker"
+import {POS_KEY} from "../constant"
+
 
 class AroundMap extends React.Component{
 
 
     render(){
-        const arrPos = [
-            { lat: -34.397, lng: 150.644 },
-            { lat: -34.497, lng: 150.644 },
-            { lat: -34.597, lng: 150.644 }
-        ]
+        const pos=JSON.parse(localStorage.getItem(POS_KEY));
         return(
             <GoogleMap
                 defaultZoom={11}
-                defaultCenter={{ lat: -34.397, lng: 150.644 }}
+                defaultCenter={{ lat: pos.lat, lng: pos.lon }}
             >
-                {arrPos.map((pos)=>{
-                return <AroundMarker key={`${pos.lat}${pos.lng}`} pos={pos}/>
+                {this.props.posts.map((post)=>{
+                return <AroundMarker key={`${post.url}`} post={post}/>
             })}
             </GoogleMap>
         )
