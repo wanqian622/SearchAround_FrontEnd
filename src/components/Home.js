@@ -4,6 +4,8 @@ import {API_ROOT, GEO_OPTIONS, TOKEN_KEY, AUTH_PREFIX} from "../constant";
 import {POS_KEY} from "../constant";
 import $ from 'jquery';
 import {Gallery} from "./Gallery";
+import { CreatePostButton } from './CreatePostButton';
+import {wrappedAroundMap} from "./AroundMap";
 
 
 const TabPane = Tabs.TabPane;
@@ -36,7 +38,6 @@ export class Home extends React.Component{
         console.log(position);
         this.setState({
             loadingGeoLocation:false,
-            loadingPosts:false,
             error:''
         });
         const {latitude, longitude} = position.coords;
@@ -79,13 +80,14 @@ export class Home extends React.Component{
 
     // get date from server
     loadNearbyPosts = () =>{
-        const lat = 37.7915953;
-        const lon = -122.3937977;
+        // const lat = 37.7915953;
+        // const lon = -122.3937977;
+        const { lat, lon } = JSON.parse(localStorage.getItem(POS_KEY));
         this.setState({
             loadingPosts:true,
             error:''
         });
-        $.ajax({
+        return $.ajax({
             url: `${API_ROOT}/search?lat=${lat}&lon=${lon}&range=20`,
             method: 'GET',
             headers: {
@@ -100,19 +102,25 @@ export class Home extends React.Component{
         }).catch((error) => {
             console.log(error);
         });
-
     }
 
 
     render(){
-        const operations = <Button type = "primary">Create New Post</Button>;
+        const createPostButton = <CreatePostButton loadNearbyPosts={this.loadNearbyPosts}/>;
         return(
 
-            <Tabs tabBarExtraContent = {operations} className = "main-tabs">
+            <Tabs tabBarExtraContent = {createPostButton} className = "main-tabs">
                 <TabPane tab = "Posts" key = "1">
                     {this.getGalleryPanelContent()}
                 </TabPane>
-                <TabPane tab = "Map" key = "2"></TabPane>
+                <TabPane tab = "Map" key = "2">
+                    <wrappedAroundMap
+                        googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4R6AN7SmujjPUIGKdyao2Kqitzr1kiRg&v=3.exp&libraries=geometry,drawing,places"
+                        loadingElement={<div style={{ height: `100%` }} />}
+                        containerElement={<div style={{ height: `600px` }} />}
+                        mapElement={<div style={{ height: `100%` }} />}
+                    />
+                </TabPane>
             </Tabs>
         );
     }
