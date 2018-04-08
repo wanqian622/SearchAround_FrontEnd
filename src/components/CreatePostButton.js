@@ -36,8 +36,10 @@ export class CreatePostButton extends React.Component{
                     contentType: false,
                     dataType: 'text',
                 }).then((response) => {
+                    this.form.resetFields();
                     message.success('created a post successfully.');
                 }, (error) => {
+                    this.form.resetFields();
                     message.error(error.responseText);
                 }).then(() => {
                     this.form.resetFields();
