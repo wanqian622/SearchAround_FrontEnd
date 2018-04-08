@@ -7,10 +7,12 @@ class AroundMap extends React.Component{
             <GoogleMap
                 defaultZoom={11}
                 defaultCenter={{ lat: -34.397, lng: 150.644 }}
-            >
+            ><Marker
+                    position={{ lat: -34.397, lng: 150.644 }}
+            > </Marker>
             </GoogleMap>
         )
     }
 }
 
-export const wrappedAroundMap = withScriptjs(withGoogleMap(AroundMap));
+export const WrappedAroundMap = withScriptjs(withGoogleMap(AroundMap));
