@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Tabs, Spin} from 'antd';
+import {Tabs, Spin} from 'antd';
 import {API_ROOT, GEO_OPTIONS, TOKEN_KEY, AUTH_PREFIX} from "../constant";
 import {POS_KEY} from "../constant";
 import $ from 'jquery';
